@@ -119,6 +119,10 @@ func main() {
 	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_", ".", "_"))
 	viper.AutomaticEnv()
 
+	if !checkFindMyRunning() {
+		log.Fatal("🛑 Find My is not running. You must run Find My in the background to use this tool.")
+	}
+
 	fmt.Println("Starting to track...")
 	fmt.Println("Please keep `Find My` app open on your device.")
 	fmt.Println("Press Ctrl+C to stop tracking.")
@@ -139,6 +143,8 @@ func main() {
 
 	stop := make(chan os.Signal, 1)
 
+	findMyWarn := false
+
 	go func() {
 		for {
 			select {
@@ -146,6 +152,18 @@ func main() {
 				return
 			default:
 				time.Sleep(1 * time.Second)
+
+				if !checkFindMyRunning() {
+					if !findMyWarn {
+						fmt.Println("⚠️ WARNING: Find My is not running. You must run Find My in the background to use this tool.")
+						findMyWarn = true
+					}
+					time.Sleep(1 * time.Minute)
+					continue
+				} else {
+					findMyWarn = false
+				}
+
 				f, err := os.ReadFile(jsonFile)
 				if err != nil {
 					log.Fatal("Error opening file:", err)
@@ -266,4 +284,13 @@ func main() {
 	fmt.Println("Stopped by user")
 	//stop caffeinate
 	cmd.Process.Signal(syscall.SIGTERM)
+}
+
+func checkFindMyRunning() bool {
+	cmd := exec.Command("pgrep", "FindMy")
+	err := cmd.Run()
+	if err != nil {
+		return false
+	}
+	return true
 }
