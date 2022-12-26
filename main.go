@@ -158,7 +158,7 @@ func main() {
 						fmt.Println("⚠️ WARNING: Find My is not running. You must run Find My in the background to use this tool.")
 						findMyWarn = true
 					}
-					time.Sleep(1 * time.Minute)
+					time.Sleep(5 * time.Second)
 					continue
 				} else {
 					findMyWarn = false
