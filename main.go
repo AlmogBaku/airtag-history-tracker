@@ -182,7 +182,7 @@ func main() {
 					}
 
 					ts := time.Unix(d.Location.TimeStamp/1000, d.Location.TimeStamp%1000)
-					if lu, ok := lastUpdate[d.Identifier]; ok && lu.Before(ts) || lu.Equal(ts) {
+					if lu, ok := lastUpdate[d.Identifier]; ok && lu.After(ts) || lu.Equal(ts) {
 						continue
 					}
 					lastUpdate[d.Identifier] = ts
